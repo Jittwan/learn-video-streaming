@@ -64,6 +64,28 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
         const player = playerRef.current;
         if (!player) return;
 
+        const duration = player.duration();
+        if (!duration || isNaN(duration)) return;
+
+        const seekBar = (player as any).controlBar?.progressControl?.seekBar?.el();
+        if (!seekBar) return;
+
+        const oldMarkers = seekBar.querySelectorAll('.quiz-marker');
+        oldMarkers.forEach((marker: Element) => marker.remove());
+
+        quizEvents.forEach((event) => {
+            const percent = (event.time / duration) * 100;
+            const marker = document.createElement('div');
+            marker.className = 'quiz-marker absolute h-full w-[4px] bg-yellow-400 opacity-80 pointer-events-none';
+            marker.style.left = `${percent}%`;
+            seekBar.appendChild(marker);
+        });
+    }, [quizEvents, playerRef.current?.readyState()]);
+
+    useEffect(() => {
+        const player = playerRef.current;
+        if (!player) return;
+
         const seekBar = (player as any).controlBar?.progressControl?.seekBar;
 
         if (seekBar) {

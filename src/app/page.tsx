@@ -39,7 +39,6 @@ export default function VideoPage() {
   const video = 'http://47.128.238.128:8081/media/ForBiggerFun.mp4/playlist.m3u8'
 
   return (
-
     <div style={{ textAlign: 'center', padding: '40px 0', backgroundColor: '#f5f5f5' }}>
       <h1 style={{
         fontSize: '36px',
