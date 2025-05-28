@@ -1,40 +1,55 @@
 'use client';
 import HLSPlayer from '@/app/components/HLSPlayer';
 
+type QuizEvent = {
+  time: number;
+  question: string;
+  options: string[];
+  correctAnswerIndex: number[];
+  quizType: 'single' | 'multiple';
+};
+
 const quizData = [
   {
     time: 4,
     question: 'A is the first letter of the _____.',
     options: ['Alphabet', 'Number', 'Color'],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: [0],
+    quizType: 'single',
   },
   {
     time: 8,
     question: 'What color is the sky?',
     options: ['Blue', 'Green', 'Red'],
-    correctAnswerIndex: 0,
+    correctAnswerIndex: [0],
+    quizType: 'single',
   },
   {
     time: 12,
-    question: 'Which one is an animal?',
-    options: ['Cat', 'Car', 'Cup'],
-    correctAnswerIndex: 0,
+    question: 'Which one(s) are animals?',
+    options: ['Cat', 'Car', 'Dog'],
+    correctAnswerIndex: [0, 2],
+    quizType: 'multiple',
   },
   {
     time: 16,
     question: 'How many legs does a human have?',
     options: ['One', 'Two', 'Three'],
-    correctAnswerIndex: 1,
+    correctAnswerIndex: [1],
+    quizType: 'single',
   },
   {
     time: 20,
-    question: 'What do you use to eat soup?',
-    options: ['Spoon', 'Fork', 'Knife'],
-    correctAnswerIndex: 0,
+    question: 'Which of the following can you use to eat soup?',
+    options: ['Spoon', 'Fork', 'Chopsticks'],
+    correctAnswerIndex: [0, 2],
+    quizType: 'multiple',
   }
 ];
 
 export default function VideoPage() {
+
+
 
   const video = 'http://47.128.238.128:8081/media/ForBiggerFun.mp4/playlist.m3u8'
 
@@ -50,9 +65,10 @@ export default function VideoPage() {
       }}>Interactive Learning</h1>
       <HLSPlayer
         src={video}
-        quizEvents={quizData}
-        onQuizAnswered={(event, answerIndex, isCorrect) => {
-          console.log(`ตอบ: ${event.options[answerIndex]} (${isCorrect ? 'ถูกต้อง' : 'ผิด'})`);
+        quizEvents={quizData as unknown as QuizEvent[]}
+        onQuizAnswered={(event, answerIndexes, isCorrect) => {
+          const selected = answerIndexes.map(i => event.options[i]).join(', ');
+          console.log(`ตอบ: ${selected} (${isCorrect ? 'ถูกต้อง' : 'ผิด'})`);
         }}
       />
     </div>

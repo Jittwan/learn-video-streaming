@@ -8,13 +8,14 @@ type QuizEvent = {
     time: number;
     question: string;
     options: string[];
-    correctAnswerIndex: number;
+    correctAnswerIndex: number[]; 
+    quizType: 'single' | 'multiple'; 
 };
 
 type HLSPlayerProps = {
     src: string;
     quizEvents: QuizEvent[];
-    onQuizAnswered?: (event: QuizEvent, selectedIndex: number, isCorrect: boolean) => void;
+    onQuizAnswered?: (event: QuizEvent, selectedIndex: number[], isCorrect: boolean) => void;
 };
 
 export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayerProps) {
@@ -23,7 +24,7 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
 
     const [currentQuiz, setCurrentQuiz] = useState<QuizEvent | null>(null);
     const [answeredQuizzes, setAnsweredQuizzes] = useState<Set<number>>(new Set());
-    const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+    const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
     const [allowedMaxTime, setAllowedMaxTime] = useState(0);
     const [error, setError] = useState<string | null>(null);
 
@@ -74,7 +75,8 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
         oldMarkers.forEach((marker: Element) => marker.remove());
 
         quizEvents.forEach((event) => {
-            const percent = (event.time / duration) * 100;
+            const adjustedTime = Math.max(event.time - 1, 0);
+            const percent = (adjustedTime / duration) * 100;
             const marker = document.createElement('div');
             marker.className = 'quiz-marker absolute h-full w-[4px] bg-yellow-400 opacity-80 pointer-events-none';
             marker.style.left = `${percent}%`;
@@ -154,7 +156,7 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
                     !answeredQuizzes.has(index)
                 ) {
                     setCurrentQuiz(event);
-                    setSelectedAnswer(null);
+                    setSelectedAnswers([]);
                     setError(null);
                     player.pause();
                 }
@@ -164,7 +166,7 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
         player.on('timeupdate', checkQuiz);
         return () => player.off('timeupdate', checkQuiz);
     }, [quizEvents, answeredQuizzes]);
-
+    
     useEffect(() => {
         const player = playerRef.current;
         if (!player) return;
@@ -191,27 +193,65 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [currentQuiz]);
 
+    const toggleAnswer = (idx: number) => {
+        if (!currentQuiz) return;
+        if (currentQuiz.quizType === 'single') {
+            setSelectedAnswers([idx]);
+        } else {
+            setSelectedAnswers(prev =>
+                prev.includes(idx)
+                    ? prev.filter(i => i !== idx)
+                    : [...prev, idx]
+            );
+        }
+        setError(null);
+    };
+
     const handleSubmit = () => {
-        if (!currentQuiz || selectedAnswer === null) {
+        if (!currentQuiz || selectedAnswers.length === 0) {
             setError('กรุณาเลือกคำตอบ');
             return;
         }
-
+    
         const quizIndex = quizEvents.findIndex(q => q.time === currentQuiz.time);
-        const isCorrect = selectedAnswer === currentQuiz.correctAnswerIndex;
-
-        onQuizAnswered?.(currentQuiz, selectedAnswer, isCorrect);
-
+        const correct = [...currentQuiz.correctAnswerIndex].sort().toString();
+        const selected = [...selectedAnswers].sort().toString();
+        const isCorrect = correct === selected;
+    
+        onQuizAnswered?.(currentQuiz, selectedAnswers, isCorrect);
+    
         if (isCorrect) {
             setAnsweredQuizzes(prev => new Set(prev).add(quizIndex));
             setCurrentQuiz(null);
-            setSelectedAnswer(null);
+            setSelectedAnswers([]);
             setError(null);
             playerRef.current?.play();
         } else {
-            setError('คำตอบไม่ถูก');
+            setError('คำตอบไม่ถูกต้อง');
         }
     };
+    
+    // const handleSubmit = () => {
+    //     if (!currentQuiz || selectedAnswer === null) {
+    //         setError('กรุณาเลือกคำตอบ');
+    //         return;
+    //     }
+
+    //     const quizIndex = quizEvents.findIndex(q => q.time === currentQuiz.time);
+    //     const isCorrect = selectedAnswer === currentQuiz.correctAnswerIndex;
+
+    //     onQuizAnswered?.(currentQuiz, selectedAnswer, isCorrect);
+
+    //     if (isCorrect) {
+    //         setAnsweredQuizzes(prev => new Set(prev).add(quizIndex));
+    //         setCurrentQuiz(null);
+    //         setSelectedAnswer(null);
+    //         setError(null);
+    //         playerRef.current?.play();
+    //     } else {
+    //         setError('คำตอบไม่ถูก');
+    //     }
+    // };
 
     return (
         <div style={{
@@ -263,13 +303,10 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
                                     borderRadius: '5px'
                                 }}>
                                     <input
-                                        type="radio"
+                                         type={currentQuiz.quizType === 'multiple' ? 'checkbox' : 'radio'}
                                         name="quiz"
-                                        checked={selectedAnswer === idx}
-                                        onChange={() => {
-                                            setSelectedAnswer(idx);
-                                            setError(null);
-                                        }}
+                                        checked={selectedAnswers.includes(idx)}
+                                        onChange={() => toggleAnswer(idx)}
                                     />
                                     {option}
                                 </label>
