@@ -230,28 +230,7 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
             setError('คำตอบไม่ถูกต้อง');
         }
     };
-    
-    // const handleSubmit = () => {
-    //     if (!currentQuiz || selectedAnswer === null) {
-    //         setError('กรุณาเลือกคำตอบ');
-    //         return;
-    //     }
 
-    //     const quizIndex = quizEvents.findIndex(q => q.time === currentQuiz.time);
-    //     const isCorrect = selectedAnswer === currentQuiz.correctAnswerIndex;
-
-    //     onQuizAnswered?.(currentQuiz, selectedAnswer, isCorrect);
-
-    //     if (isCorrect) {
-    //         setAnsweredQuizzes(prev => new Set(prev).add(quizIndex));
-    //         setCurrentQuiz(null);
-    //         setSelectedAnswer(null);
-    //         setError(null);
-    //         playerRef.current?.play();
-    //     } else {
-    //         setError('คำตอบไม่ถูก');
-    //     }
-    // };
 
     return (
         <div style={{
@@ -287,7 +266,7 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
                             marginBottom: '16px',
                             fontWeight: 'bold',
                             color: '#fff',
-                            textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+                            textShadow: '0 2px 4px rgba(0, 0,   0, 0.5)'
                         }}>
                             {currentQuiz.question}
                         </h3>

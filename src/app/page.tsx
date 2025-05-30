@@ -18,28 +18,28 @@ const quizData = [
     quizType: 'single',
   },
   {
-    time: 8,
+    time: 20,
     question: 'What color is the sky?',
     options: ['Blue', 'Green', 'Red'],
     correctAnswerIndex: [0],
     quizType: 'single',
   },
   {
-    time: 12,
+    time: 30,
     question: 'Which one(s) are animals?',
     options: ['Cat', 'Car', 'Dog'],
     correctAnswerIndex: [0, 2],
     quizType: 'multiple',
   },
   {
-    time: 16,
+    time: 40,
     question: 'How many legs does a human have?',
     options: ['One', 'Two', 'Three'],
     correctAnswerIndex: [1],
     quizType: 'single',
   },
   {
-    time: 20,
+    time: 50,
     question: 'Which of the following can you use to eat soup?',
     options: ['Spoon', 'Fork', 'Chopsticks'],
     correctAnswerIndex: [0, 2],
@@ -51,7 +51,7 @@ export default function VideoPage() {
 
 
 
-  const video = 'http://47.128.238.128:8081/media/ForBiggerFun.mp4/playlist.m3u8'
+  const video = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8'
 
   return (
     <div style={{ textAlign: 'center', padding: '40px 0', backgroundColor: '#f5f5f5' }}>
