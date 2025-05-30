@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
+import 'videojs-hls-quality-selector';
+
 type QuizEvent = {
     time: number;
     question: string;
@@ -36,6 +38,11 @@ export default function HLSPlayer({ src, quizEvents, onQuizAnswered }: HLSPlayer
             autoplay: true,
             preload: 'auto',
             sources: [{ src, type: 'application/x-mpegURL' }],
+            plugins: {
+                hlsQualitySelector: {
+                    displayCurrentQuality: true,
+                },
+            },
         });
 
         playerRef.current = player;
